@@ -13,14 +13,17 @@ app.listen(PORT, () => {
   console.log(`Keep-alive server running on port ${PORT}`);
 });
 
+const rawInterval = Number(process.env.CHANGE_INTERVAL) || 15;
+const changeInterval = Math.max(rawInterval < 1000 ? rawInterval * 1000 : rawInterval, 5000);
+
 const CONFIG = {
   token: process.env.DISCORD_TOKEN,
   applicationId: process.env.APPLICATION_ID,
   streamUrl: process.env.STREAM_URL,
-  presenceName: process.env.PRESENCE_NAME,
+  presenceName: process.env.PRESENCE_NAME || 'Rich Presence',
   presenceState: process.env.PRESENCE_STATE,
-  statusMessages: (process.env.STATUS_MESSAGES || '').split(','),
-  changeInterval: Number(process.env.CHANGE_INTERVAL) || 5000,
+  statusMessages: (process.env.STATUS_MESSAGES || '').split(',').map(s => s.trim()).filter(Boolean),
+  changeInterval: changeInterval,
   buttons: {
     myuser: process.env.BUTTON_MYUSER,
     discord: process.env.BUTTON_DISCORD
@@ -40,6 +43,7 @@ const client = new Client({
 });
 
 let statusIndex = 0;
+const startTime = Date.now();
 
 function updateRichPresence() {
   if (!CONFIG.statusMessages.length) return;
@@ -54,9 +58,11 @@ function updateRichPresence() {
       .setName(CONFIG.presenceName)
       .setDetails(status)
       .setState(CONFIG.presenceState)
-      .setStartTimestamp(Date.now())
-      .addButton('MyUser', CONFIG.buttons.myuser)
-      .addButton('Discord', CONFIG.buttons.discord);
+      .setStartTimestamp(startTime);
+
+    if (CONFIG.buttons.discord) {
+      presence.addButton('𝔦𝔤', CONFIG.buttons.discord);
+    }
 
     client.user.setPresence({
       activities: [presence],
@@ -72,6 +78,7 @@ function updateRichPresence() {
 
 client.on('ready', () => {
   console.log(`Selfbot connected as ${client.user.tag}`);
+  console.log(`Rich Presence interval set to ${CONFIG.changeInterval / 1000}s`);
 
   setTimeout(() => {
     updateRichPresence();
@@ -82,12 +89,6 @@ client.on('ready', () => {
 client.on('error', console.error);
 
 client.login(CONFIG.token).catch(console.error);
-
-process.on('SIGINT', () => {
-  console.log('Shutting down...');
-  client.destroy();
-  process.exit(0);
-});
 
 process.on('SIGINT', () => {
   console.log('Shutting down...');
