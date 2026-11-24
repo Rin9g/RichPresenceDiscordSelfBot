@@ -12,7 +12,7 @@ PRESENCE_STATE=
 *I removed one button, and `PRESENCE_STATE` is optional.*
 
 
-###Example:
+### Example:
 ```STREAM_URL=https://www.twitch.tv/killerqueen_lol
 STATUS_MESSAGES=𝔤𝔭𝔥
 DISCORD_TOKEN=
