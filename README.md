@@ -13,7 +13,8 @@ PRESENCE_STATE=
 
 
 ### Example:
-```STREAM_URL=https://www.twitch.tv/killerqueen_lol
+```
+STREAM_URL=https://www.twitch.tv/killerqueen_lol
 STATUS_MESSAGES=𝔤𝔭𝔥
 DISCORD_TOKEN=
 BUTTON_DISCORD=https://www.instagram.com/raininginhe4rt/
